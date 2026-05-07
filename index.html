@@ -2,59 +2,58 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>FileHosting – Link diretti</title>
+  <title>FileHosting – Lista automatica file</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 800px; margin: 30px auto; }
     h1 { font-size: 24px; }
     ul { line-height: 1.8; }
     code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
-    .box { border: 1px solid #ddd; padding: 15px; margin-top: 20px; border-radius: 5px; }
-    input[type="text"] { width: 100%; padding: 6px; margin: 5px 0 10px; }
-    button { padding: 6px 12px; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <h1>FileHosting – Link diretti ai file</h1>
-  <p>
-    Clicca su un file per aprirlo con link diretto (come:
-    <code>https://francescobravi.github.io/FileHosting/Metasalute%20piano%20BASE.pdf</code>).
-  </p>
+  <h1>File presenti nella cartella /docs</h1>
+  <p>Questa lista viene generata automaticamente leggendo la cartella del repository.</p>
 
-  <div class="box">
-    <h2>File disponibili (lista manuale)</h2>
-    <ul>
-      <!-- Aggiungi qui i file che vuoi esporre -->
-      <li>
-        <a href="Metasalute%20piano%20BASE.pdf" target="_blank">
-          Metasalute piano BASE.pdf
-        </a>
-      </li>
-      <li>
-        <a href="prova.txt" target="_blank">
-          prova.txt
-        </a>
-      </li>
-      <!-- Altri file... -->
-    </ul>
-    <p>
-      Per aggiungere un file, basta caricarlo nella root del repo
-      <code>FileHosting</code> e aggiungere una riga come quelle sopra.
-    </p>
-  </div>
-
-  <div class="box">
-    <h2>Generatore link diretto da nome file</h2>
-    <p>
-      Inserisci il nome del file (così come è nel repo, es:
-      <code>Metasalute piano BASE.pdf</code> oppure <code>cartella/file.pdf</code>).
-    </p>
-    <input type="text" id="filename" placeholder="Metasalute piano BASE.pdf">
-    <button onclick="generaLink()">Genera link</button>
-
-    <p><strong>Link diretto:</strong></p>
-    <p id="output"><em>Verrà mostrato qui...</em></p>
-  </div>
+  <ul id="file-list">
+    <li><em>Caricamento...</em></li>
+  </ul>
 
   <script>
-    // Configura qui il tuo repo
+    const username = "FrancescoBravi";
+    const repo = "FileHosting";
+    const branch = "main";
+    const folder = "docs";
+
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${folder}?ref=${branch}`;
+    const pagesBase = `https://${username}.github.io/${repo}/`;
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(files => {
+        const list = document.getElementById("file-list");
+        list.innerHTML = "";
+
+        files.forEach(file => {
+          if (file.type === "file") {
+            const li = document.createElement("li");
+            const link = document.createElement("a");
+
+            // Link diretto via GitHub Pages
+            link.href = pagesBase + folder + "/" + encodeURIComponent(file.name);
+            link.textContent = file.name;
+            link.target = "_blank";
+
+            li.appendChild(link);
+            list.appendChild(li);
+          }
+        });
+      })
+      .catch(err => {
+        document.getElementById("file-list").innerHTML =
+          "<li>Errore nel caricamento dei file.</li>";
+      });
+  </script>
+
+</body>
+</html>
